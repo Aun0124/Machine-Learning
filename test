@@ -1,0 +1,60 @@
+Collect a set of your own handwritten images, you could use your phone or a scanner to collect images. A felt tip marker works best.
+
+It's easiest to write several images at once on sheet of paper and take one picture, you can crop each image using an image tool and save it in a file as .PNG
+
+In your notebook, import a couple of useful image modules from the skimage library in a cell:
+
+from skimage import io, transform
+Read an image as follows:
+
+rgb = io.imread('8.png')
+print(f'Original image shape {rgb.shape}')
+plt.imshow(rgb)
+Convert to grayscale
+
+gray = np.dot(rgb[...,:], [0.299, 0.587, 0.114, 0])
+print(f'Grayscale image shape {gray.shape}')
+plt.imshow(gray, cmap='gray')
+Resize to 28 x 28 pixels
+
+gray28x28 = transform.resize(gray, (img_rows, img_cols))
+print(f'Resized image shape {gray28x28.shape}')
+plt.imshow(gray28x28, cmap='gray')
+Filter the background
+
+vectorized_filter = np.vectorize(lambda v: 255 if v > 128 else v)
+filtered = vectorized_filter(gray28x28)
+plt.imshow(filtered, cmap='gray')
+Invert the image and scale pixel values
+
+inverted = 255 - filtered
+reshaped = inverted.reshape(img_rows, img_cols, 1) / 255.0
+batch = np.array([reshaped])
+plt.imshow(inverted, cmap='gray')
+Make a prediction using your previously trained model
+
+predictions = model.predict(batch)
+most_likely = predictions.argmax(1)
+most_likely
+Plot probabilities
+
+plt.bar(range(10), predictions[0], tick_label=range(10))
+plt.title('Prediction values')
+plt.show()
+Combine all of the steps above into one predict function that accepts an image file name and returns a predicted value like this:
+
+def predict_digit(filename):
+    # Your code to predict the value given the image filename
+    return prediction
+Test your predict_digit() function on your own handwritten images
+
+Here are some tips improve accuracy
+
+Use a felt tip pen (the training digits appear to be written with a wide pen)
+
+Crop images close to the top and bottom of each digit, don't leave a lot of white space (similar to training images)
+
+Questions for this assignment
+Why is it necessary to convert images to grayscale?
+
+Can you use the model to measure handwriting quality between different people? How would this work?
